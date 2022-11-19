@@ -1,7 +1,5 @@
 # CIND 820 Data Analytics Final Project by Matthew Whitcombe
 
-Files I'll be using to prepare and display my CIND820 final project
-
 By: Matthew Whitcombe
 Supervisor: Dr. Ceni Babaoglu
 
