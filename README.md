@@ -5,7 +5,7 @@ By: Matthew Whitcombe\
 Supervisor: Dr. Ceni Babaoglu
 
 **Project Stages:**
-1) **Selecting a Theme:** I choose two themes of focus for my project:
+1) **Selecting a Theme:** Two themes were chosen for my project:
      - The first theme is *Data Mining & Knowledge Discovery*
      - The second theme is *Classification, and Regression*
 
