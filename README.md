@@ -4,10 +4,6 @@
 By: Matthew Whitcombe\
 Supervisor: Dr. Ceni Babaoglu
 
-
-
-
-
 **Project Stages:**
 1) **Selecting a Theme:** I choose two themes of focus for my project:
      - The first theme is Data Mining & Knowledge Discovery
@@ -21,7 +17,12 @@ Supervisor: Dr. Ceni Babaoglu
 
 5) **Data Exploration:** Scan through the data and determine which data will be useful in the analysis. In addition, it is important to look for possible areas of the dataset that may need to be cleaned. Cleaning the dataset will help to improve its quality. The absence of a clean dataset could lead to errors or incorrect results. An example of one part of this process is I converted all the fields in the Order Date column from a “Character” type to a “Date” type, removed the time stamp from the date variables.
 
-6) Describe the Approach: 
+6) **Approach:** The following are the steps on how I'll approach my project:
+   - Data Collection
+   - Data Exploration
+   - Pre-Processing
+   - Forecast Analysis
+   - Interpretation
 
 7) **Initial Results and the Code:** Execute the steps mentioned in the approach section of the project. (I.e. cleaing the dataset, loading in the R packages needed to perform the analysis, use differnt analysis approaches to obtain different results which would allow for comparisons)
 
