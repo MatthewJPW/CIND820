@@ -1,0 +1,727 @@
+---
+title: "Initial Code CIND 820"
+author: "Matthew Whitcombe"
+date: "2022-11-20"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#loading in packages, and Libraries
+```{r}
+#install.packages("tidyverse")
+#install.packages("tseries")
+#install.packages("forecast")
+#install.packages("fpp2")
+#install.packages("tinytex")
+#tinytex::install_tinytex()
+
+library(tidyverse)
+library(forecast)
+library(tseries)
+library(lubridate)
+library(dplyr)
+library(ggplot2)
+```
+
+
+```{r}
+#Importing Dataset
+salesdata <- read.csv(file.choose())
+head(salesdata)
+```
+
+```{r}
+#Unique Countries
+unique(salesdata$COUNTRY)
+```
+
+```{r}
+#Unique Toys
+unique(salesdata$PRODUCTLINE)
+
+```
+
+```{r}
+#creating backup dataset
+salesdata2 <-salesdata
+
+```
+
+
+```{r}
+#Cleaning Data
+
+#Removing timestamps from orderdate column
+salesdata2$ORDERDATE <- gsub(" .*","",salesdata2$ORDERDATE)
+
+#Changing OrderDate Class to "Date"
+salesdata2$ORDERDATE <- mdy(salesdata2$ORDERDATE)
+
+class(salesdata2$ORDERDATE)
+
+```
+
+```{r}
+#Re-ordering the Orderdate in ascending order
+salesdata2 <- salesdata2[order(salesdata2$ORDERDATE),]
+```
+
+```{r}
+#Checking to see the total sales per country
+salesdata2 %>%
+  group_by(COUNTRY)%>%
+  summarise(sum_country = sum(SALES, na.rm = TRUE ))
+```
+
+```{r}
+#Checking to see the total sales per Toy
+
+salesdata2 %>%
+  group_by(PRODUCTLINE)%>%
+  summarise(sum_country = sum(SALES, na.rm = TRUE ))
+```
+
+
+
+```{r}
+#Forecast 1, Part 1: Forecast test without variables
+
+#Creating Time Series
+sale <- ts(salesdata2[,5], start = c(2003,1), end = c(2005,5), frequency = 12)
+sale
+```
+
+```{r}
+#Building Arima Model
+
+Test_Model <- auto.arima(sale)
+
+```
+
+```{r}
+#Print Model Summary
+print(summary(Test_Model))
+
+#Note: ARIMA(0,0,0) means that the data is white noise
+```
+
+```{r}
+#Checking residual values of Model
+checkresiduals(Test_Model)
+```
+
+```{r}
+#Create Forecast of Model
+#Forecast for the next two years
+Test_Forecast <- forecast(Test_Model, h=36)
+```
+
+```{r}
+#Plot Forecast Results
+#Showing the last 5 years
+autoplot(Test_Forecast, include = 60)
+```
+
+
+```{r}
+#Print Summary of Forecast Results
+print(summary(Test_Forecast))
+
+```
+
+```{r}
+#Forecast 1, Part 2: Testing Forecast with manual ARIMA variables
+
+#Building second test model
+test2_model <-arima(sale,order = c(1,1,2), seasonal = list(order = c(1,1,1)))
+```
+
+```{r}
+#Print Manual Arima Model Summary
+print(summary(test2_model))
+```
+
+```{r}
+#Checking residual values of Manual Arima Model
+checkresiduals(test2_model)
+```
+
+```{r}
+#Create Forecast for Manual ARIMA Model
+#Forecast for the next two years
+Test2_Forecast <- forecast(test2_model, h=36)
+```
+
+```{r}
+#Plot Forecast Results
+#Showing the last 5 years
+autoplot(Test2_Forecast, include = 60)
+
+```
+
+```{r}
+#Print Summary Forecast Results
+print(summary(Test2_Forecast))
+```
+
+
+```{r}
+#Forecast 2: Forecast with Variables
+
+#Creating Time Series
+sale <- ts(salesdata2[,5], start = c(2003,1), end = c(2005,5), frequency = 12)
+sale
+```
+
+```{r}
+#Built Fit Arima Model
+#Taking first difference of the data
+#Getting rid of seasonality by taking first seasonal difference
+
+AR_Model <- auto.arima(sale, d=1, D=1, stepwise = FALSE, approximation = FALSE, trace = TRUE)
+```
+
+```{r}
+#Printing AR Model Summary
+print(summary(AR_Model))
+```
+
+```{r}
+#Checking Residuals of AR_Model
+checkresiduals(AR_Model)
+```
+
+```{r}
+#Forecasting ARIMA Model
+#forecast two years ahead
+AR_Model_Forecast <- forecast(AR_Model, h=36)
+```
+
+```{r}
+#Plotting AR Model Forecast
+#including the last 5 years
+autoplot(AR_Model_Forecast, include = 60)
+```
+
+```{r}
+#Print Summary of AR Model Forecast
+print(summary(AR_Model_Forecast))
+```
+
+```{r}
+#Forecast 3, Part 1: Forecasting with focus on USA data
+
+#Sub-setting the data to only show sales in USA
+USA_Sales <- subset(salesdata2, COUNTRY == "USA")
+head(USA_Sales)
+
+```
+
+```{r}
+#Creating Time Series
+US_sales <- ts(USA_Sales[,5], start = c(2003,1), end = c(2005,5), frequency = 12)
+US_sales
+```
+
+```{r}
+#Build Fit Arima Model
+#Taking first difference of the data
+#Getting rid of seasonality by taking first seasonal difference
+
+US_AR_Model <- auto.arima(US_sales, d=1, D=1, stepwise = FALSE, approximation = FALSE, trace = TRUE)
+```
+
+```{r}
+#Printing AR Model Summary
+print(summary(US_AR_Model))
+```
+
+```{r}
+#Checking Residuals of AR_Model
+checkresiduals(US_AR_Model)
+```
+
+```{r}
+#Forecasting ARIMA Model
+#forecast two years ahead
+US_AR_Model_Forecast <- forecast(US_AR_Model, h=36)
+```
+
+```{r}
+#Plotting AR Model Forecast
+#including the last 5 years
+autoplot(US_AR_Model_Forecast, include = 60)
+```
+
+```{r}
+#Print Summary of AR Model Forecast
+print(summary(US_AR_Model_Forecast))
+```
+
+```{r}
+#Forecast 3, Part 2: Testing USA Sales Forecast with manual ARIMA variables
+
+#Building second USA model
+US2_model <-arima(US_sales,order = c(1,1,2), seasonal = list(order = c(1,1,1)))
+```
+
+```{r}
+#Print Manual Arima Model Summary
+print(summary(US2_model))
+```
+
+```{r}
+#Checking residual values of Manual Arima Model
+checkresiduals(US2_model)
+```
+
+```{r}
+#Create Forecast for Manual ARIMA Model
+#Forecast for the next two years
+US2_Forecast <- forecast(US2_model, h=36)
+```
+
+```{r}
+#Plot Forecast Results
+#Showing the last 5 years
+autoplot(US2_Forecast, include = 60)
+
+```
+
+```{r}
+#Print Summary Forecast Results
+print(summary(US2_Forecast))
+```
+
+```{r}
+#Forecast 4, Part 1: Forecasting with Focus on Spain Data
+
+#Sub-setting the data to only show sales in Spain
+Spain_Sales <- subset(salesdata2, COUNTRY == "Spain")
+head(Spain_Sales)
+```
+
+```{r}
+#Creating Time Series
+Spain_sales <- ts(Spain_Sales[,5], start = c(2003,1), end = c(2005,5), frequency = 12)
+Spain_sales
+```
+
+```{r}
+#Build Fit Arima Model
+#Taking first difference of the data
+#Getting rid of seasonality by taking first seasonal difference
+
+Spain_AR_Model <- auto.arima(Spain_sales, d=1, D=1, stepwise = FALSE, approximation = FALSE, trace = TRUE)
+```
+
+```{r}
+#Printing AR Model Summary
+print(summary(Spain_AR_Model))
+```
+
+```{r}
+#Checking Residuals of AR_Model
+checkresiduals(Spain_AR_Model)
+```
+
+```{r}
+#Forecasting ARIMA Model
+#forecast two years ahead
+Spain_AR_Model_Forecast <- forecast(Spain_AR_Model, h=36)
+```
+
+```{r}
+#Plotting AR Model Forecast
+#including the last 5 years
+autoplot(Spain_AR_Model_Forecast, include = 60)
+```
+
+```{r}
+#Print Summary of AR Model Forecast
+print(summary(Spain_AR_Model_Forecast))
+```
+
+
+```{r}
+#Forecast 4, Part 2: Testing Spain Sales Forecast with manual ARIMA variables
+
+#Building second Spain model
+Spain2_model <-arima(Spain_sales,order = c(1,1,2), seasonal = list(order = c(1,1,1)))
+
+```
+
+```{r}
+#Print Manual Arima Model Summary
+print(summary(Spain2_model))
+```
+
+```{r}
+#Checking residual values of Manual Arima Model
+checkresiduals(Spain2_model)
+```
+
+```{r}
+#Create Forecast for Manual ARIMA Model
+#Forecast for the next two years
+Spain2_Forecast <- forecast(Spain2_model, h=36)
+```
+
+```{r}
+#Plot Forecast Results
+#Showing the last 5 years
+autoplot(Spain2_Forecast, include = 60)
+
+```
+
+```{r}
+#Print Summary Forecast Results
+print(summary(Spain2_Forecast))
+```
+
+
+```{r}
+#Forecast 5, Part 1: Forecasting with focus on Classic Cars
+
+#Sub-setting the data to only show sales in 
+Class_Car_Sales <- subset(salesdata2, PRODUCTLINE == "Classic Cars")
+head(Class_Car_Sales)
+```
+
+```{r}
+#Creating Time Series
+Class_Car_sales <- ts(Class_Car_Sales[,5], start = c(2003,1), end = c(2005,5), frequency = 12)
+Class_Car_sales
+```
+
+```{r}
+#Build Fit Arima Model
+#Taking first differnce of the data
+#Getting rid of seasonality by taking first seasonal difference
+
+CC_AR_Model <- auto.arima(Class_Car_sales, d=1, D=1, stepwise = FALSE, approximation = FALSE, trace = TRUE)
+```
+
+```{r}
+#Printing AR Model Summary
+print(summary(CC_AR_Model))
+```
+
+```{r}
+#Checking Residuals of AR_Model
+checkresiduals(CC_AR_Model)
+```
+
+```{r}
+#Forecasting ARIMA Model
+#forecast two years ahead
+CC_AR_Model_Forecast <- forecast(CC_AR_Model, h=36)
+```
+
+```{r}
+#Plotting AR Model Forecast
+#including the last 5 years
+autoplot(CC_AR_Model_Forecast, include = 60)
+```
+
+```{r}
+#Print Summary of AR Model Forecast
+print(summary(CC_AR_Model_Forecast))
+```
+
+```{r}
+#Forecast 5, Part 2: Testing Classic Cars Sales Forecast with manual ARIMA variables
+
+#Building second Classic Cars model
+CC2_model <-arima(Class_Car_sales,order = c(1,1,2), seasonal = list(order = c(1,1,1)))
+```
+
+```{r}
+#Print Manual Arima Model Summary
+print(summary(CC2_model))
+```
+
+```{r}
+#Checking residual values of Manual Arima Model
+checkresiduals(CC2_model)
+```
+
+```{r}
+#Create Forecast for Manual ARIMA Model
+#Forecast for the next two years
+CC2_Forecast <- forecast(CC2_model, h=36)
+```
+
+```{r}
+#Plot Forecast Results
+#Showing the last 5 years
+autoplot(CC2_Forecast, include = 60)
+
+```
+
+```{r}
+#Print Summary Forecast Results
+print(summary(CC2_Forecast))
+```
+
+```{r}
+#Forecast 6, Part 1: Forecasting with focus on Vintage Cars
+
+#Sub-setting the data to only show sales in 
+Vintage_Car_Sales <- subset(salesdata2, PRODUCTLINE == "Vintage Cars")
+head(Vintage_Car_Sales)
+```
+
+```{r}
+#Creating Time Series
+Vintage_Car_sales <- ts(Vintage_Car_Sales[,5], start = c(2003,1), end = c(2005,5), frequency = 12)
+Vintage_Car_sales
+```
+
+```{r}
+#Build Fit Arima Model
+#Taking first differnce of the data
+#Getting rid of seasonality by taking first seasonal difference
+
+Vintage_AR_Model <- auto.arima(Vintage_Car_sales, d=1, D=1, stepwise = FALSE, approximation = FALSE, trace = TRUE)
+```
+
+```{r}
+#Printing AR Model Summary
+print(summary(Vintage_AR_Model))
+```
+
+```{r}
+#Checking Residuals of AR_Model
+checkresiduals(Vintage_AR_Model)
+```
+
+```{r}
+#Forecasting ARIMA Model
+#forecast two years ahead
+VC_AR_Model_Forecast <- forecast(Vintage_AR_Model, h=36)
+```
+
+```{r}
+#Plotting AR Model Forecast
+#including the last 5 years
+autoplot(VC_AR_Model_Forecast, include = 60)
+```
+
+
+```{r}
+#Print Summary of AR Model Forecast
+print(summary(VC_AR_Model_Forecast))
+```
+
+
+```{r}
+#Forecast 6, Part 2: Testing Vintage Cars Sales Forecast with manual ARIMA variables
+
+#Building second Vintage Cars model
+Vintage2_model <-arima(Vintage_Car_sales,order = c(1,1,2), seasonal = list(order = c(1,1,1)))
+```
+
+```{r}
+#Print Manual Arima Model Summary
+print(summary(Vintage2_model))
+```
+
+```{r}
+#Checking residual values of Manual Arima Model
+checkresiduals(Vintage2_model)
+```
+
+```{r}
+#Create Forecast for Manual ARIMA Model
+#Forecast for the next two years
+Vintage2_Forecast <- forecast(Vintage2_model, h=36)
+```
+
+```{r}
+#Plot Forecast Results
+#Showing the last 5 years
+autoplot(Vintage2_Forecast, include = 60)
+
+```
+
+```{r}
+#Print Summary Forecast Results
+print(summary(Vintage2_Forecast))
+```
+
+```{r}
+#Forecast 7, Part 1: Forecasting with focus on Ireland
+
+#Sub-setting the data to only show sales in Ireland
+Ireland_Sales <- subset(salesdata2, COUNTRY == "Ireland")
+head(Ireland_Sales)
+```
+
+```{r}
+#Creating Time Series
+Ireland_sales <- ts(Ireland_Sales[,5], start = c(2003,1), end = c(2005,5), frequency = 12)
+Ireland_sales
+```
+
+```{r}
+#Build Fit Arima Model
+#Taking first differnce of the data
+#Getting rid of seasonality by taking first seasonal difference
+
+Ireland_AR_Model <- auto.arima(Ireland_sales, d=1, D=1, stepwise = FALSE, approximation = FALSE, trace = TRUE)
+```
+
+```{r}
+#Printing AR Model Summary
+print(summary(Ireland_AR_Model))
+```
+
+```{r}
+#Checking Residuals of AR_Model
+checkresiduals(Ireland_AR_Model)
+```
+
+```{r}
+#Forecasting ARIMA Model
+#forecast two years ahead
+IR_AR_Model_Forecast <- forecast(Ireland_AR_Model, h=36)
+```
+
+```{r}
+#Plotting AR Model Forecast
+#including the last 5 years
+autoplot(IR_AR_Model_Forecast, include = 60)
+```
+
+
+```{r}
+#Print Summary of AR Model Forecast
+print(summary(IR_AR_Model_Forecast))
+```
+
+```{r}
+#Forecast 7, Part 2: Testing Ireland Sales Forecast with manual ARIMA variables
+
+#Building second Ireland model
+Ireland2_model <-arima(Ireland_sales,order = c(1,1,2), seasonal = list(order = c(1,1,1)))
+```
+
+```{r}
+#Print Manual Arima Model Summary
+print(summary(Ireland2_model))
+```
+
+```{r}
+#Checking residual values of Manual Arima Model
+checkresiduals(Ireland2_model)
+```
+
+```{r}
+#Create Forecast for Manual ARIMA Model
+#Forecast for the next two years
+Ireland2_Forecast <- forecast(Ireland2_model, h=36)
+```
+
+```{r}
+#Plot Forecast Results
+#Showing the last 5 years
+autoplot(Ireland2_Forecast, include = 60)
+
+```
+
+```{r}
+#Print Summary Forecast Results
+print(summary(Ireland2_Forecast))
+```
+
+```{r}
+#Forecast 8, Part 1: Forecasting with focus on Trains
+
+#Sub-setting the data to only show sales of Trains
+Trains_Sales <- subset(salesdata2, PRODUCTLINE == "Trains")
+head(Trains_Sales)
+```
+
+```{r}
+#Creating Time Series
+Trains_sales <- ts(Trains_Sales[,5], start = c(2003,1), end = c(2005,5), frequency = 12)
+Trains_sales
+```
+
+```{r}
+#Build Fit Arima Model
+#Taking first differnce of the data
+#Getting rid of seasonality by taking first seasonal difference
+
+Trains_AR_Model <- auto.arima(Trains_sales, d=1, D=1, stepwise = FALSE, approximation = FALSE, trace = TRUE)
+```
+
+```{r}
+#Printing AR Model Summary
+print(summary(Trains_AR_Model))
+```
+
+```{r}
+#Checking Residuals of AR_Model
+checkresiduals(Trains_AR_Model)
+```
+
+```{r}
+#Forecasting ARIMA Model
+#forecast two years ahead
+Trains_AR_Model_Forecast <- forecast(Trains_AR_Model, h=36)
+```
+
+```{r}
+#Plotting AR Model Forecast
+#including the last 5 years
+autoplot(Trains_AR_Model_Forecast, include = 60)
+```
+
+
+```{r}
+#Print Summary of AR Model Forecast
+print(summary(Trains_AR_Model_Forecast))
+```
+
+```{r}
+#Forecast 8, Part 2: Testing Train Sales Forecast with manual ARIMA variables
+
+#Building second Train model
+Train2_model <-arima(Trains_sales,order = c(1,1,2), seasonal = list(order = c(1,1,1)))
+```
+
+```{r}
+#Print Manual Arima Model Summary
+print(summary(Train2_model))
+```
+
+```{r}
+#Checking residual values of Manual Arima Model
+checkresiduals(Train2_model)
+```
+
+```{r}
+#Create Forecast for Manual ARIMA Model
+#Forecast for the next two years
+Train2_Forecast <- forecast(Train2_model, h=36)
+```
+
+```{r}
+#Plot Forecast Results
+#Showing the last 5 years
+autoplot(Train2_Forecast, include = 60)
+
+```
+
+```{r}
+#Print Summary Forecast Results
+print(summary(Train2_Forecast))
+```
+
