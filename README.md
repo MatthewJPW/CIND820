@@ -38,3 +38,4 @@ Supervisor: Dr. Ceni Babaoglu
  - The raw dataset used for the analysis, it is labeled as *"sales_data_sample.csv"*
  - My Initial Code file named *"Initial Code MWhitcombe Final.rmd"*
  - PDF version of my technical reports in R, named *"Initial-Code-MWhitcombe-Final.pdf*
+ - README.md
