@@ -37,5 +37,5 @@ Supervisor: Dr. Ceni Babaoglu
  - My data exploration R file labeled *"CIND820 Data Review"*
  - The raw dataset used for the analysis, it is labeled as *"sales_data_sample.csv"*
  - My Initial Code file named *"Initial Code MWhitcombe Final.rmd"*
- - PDF version of my technical reports in R, named *"Initial-Code-MWhitcombe-Final.pdf*
+ - PDF version of my technical reports in R, named *"Initial-Code-MWhitcombe-Final.pdf*"
  - README.md
