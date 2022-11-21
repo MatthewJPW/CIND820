@@ -24,7 +24,7 @@ Supervisor: Dr. Ceni Babaoglu
    - Forecast Analysis
    - Interpretation
 
-7) **Initial Results and the Code:** Execute the steps mentioned in the approach section of the project. (I.e. cleaing the dataset, loading in the R packages needed to perform the analysis, use differnt analysis approaches to obtain different results which would allow for comparisons)
+7) **Initial Results and the Code:** Execute the steps mentioned in the approach section of the project. (I.e. cleaning the dataset, loading in the R packages needed to perform the analysis, use different analysis approaches to obtain different results which would allow for comparisons)
 
 8) **Final Results and Project Report:** In this final stage, the results of the forecast analysis will be presented and discussed. It is expected that the findings of the data analysis will answer the initial questions. Any shortcomings of the data analysis will be identified. Concluding remarks on the continuity of the work will also be provided.
 
